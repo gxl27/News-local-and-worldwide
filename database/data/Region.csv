@@ -1,6 +1,7 @@
-1,North America,NA,x
-2,South America,SA,x
-3,Europe,EU,x
-4,Africa,AF,x
-5,Asia,AS,x
-6,Oceania,OC,x
+name,iso2,image
+North America,NA,x
+South America,SA,x
+Europe,EU,x
+Africa,AF,x
+Asia,AS,x
+Oceania,OC,x

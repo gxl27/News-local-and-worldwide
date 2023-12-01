@@ -15,9 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('link');
-            $table->unsignedBigInteger('news_category_id');
+            $table->boolean('is_active')->default(false);
+            $table->unsignedInteger('priority')->default(0);
+            $table->unsignedBigInteger('category_id');
             $table->unsignedBigInteger('channel_id');
-            $table->foreign('news_category_id')->references('id')->on('news_categories');
+            $table->foreign('category_id')->references('id')->on('categories');
             $table->foreign('channel_id')->references('id')->on('channels');
             $table->timestamps();
         });

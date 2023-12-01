@@ -11,16 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('news', function (Blueprint $table) {
+        Schema::create('news_it', function (Blueprint $table) {
             $table->id();
-            $table->string('uid');
-            $table->unsignedBigInteger('channel_link_id');
+            $table->unsignedBigInteger('news_id');
+            $table->foreign('news_id')->references('id')->on('news')->onDelete('cascade');
             $table->string('title');
-            $table->string('link');
             $table->text('description');
-            $table->date('publish_at');
-            $table->string('image')->nullable();
-            $table->foreign('channel_link_id')->references('id')->on('channel_links');
         });
     }
 
@@ -29,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('news');
+        Schema::dropIfExists('news_it');
     }
 };

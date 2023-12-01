@@ -5,11 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Region extends Model
+class NewsDe extends Model
 {
     use HasFactory;
 
+    protected $table = 'news_de';
     protected $guarded = ['id'];
-    
+
     public $timestamps = false;
+
+    public function news()
+    {
+        return $this->belongsTo(News::class);
+    }
 }
