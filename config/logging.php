@@ -138,6 +138,22 @@ return [
             'path' => storage_path('logs/normalizer_error.log'),
             'level' => 'error',
         ],
+
+        'timeout_error' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/timeout_error.log'),
+            'level' => 'error',
+        ],
+        'news_error' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/news_error.log'),
+            'level' => 'error',
+        ],
+        'translation_error' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/translation_error.log'),
+            'level' => 'error',
+        ],
     ],
 
 ];
