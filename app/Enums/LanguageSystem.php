@@ -6,11 +6,11 @@ enum LanguageSystem: int
 {
     case EN = 1;
     case ES = 2;
-    // case DE = 3;
+    case DE = 3;
     case FR = 4;
     case RO = 5;
-    // case IT = 6;
-    // case PT = 7;
+    case IT = 6;
+    case PT = 7;
 
     public function alias() :string
     {
@@ -18,11 +18,11 @@ enum LanguageSystem: int
         {
             LanguageSystem::EN => 'En',
             LanguageSystem::ES => 'Es',
-            // LanguageSystem::DE => 'De',
+            LanguageSystem::DE => 'De',
             LanguageSystem::FR => 'Fr',
             LanguageSystem::RO => 'Ro',
-            // LanguageSystem::IT => 'It',
-            // LanguageSystem::PT => 'Pt',
+            LanguageSystem::IT => 'It',
+            LanguageSystem::PT => 'Pt',
         };
     }
     
