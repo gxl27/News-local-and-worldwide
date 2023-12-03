@@ -2,8 +2,9 @@
 
 namespace App\Repositories;
 
-use App\Models\ChannelLink;
 use App\Models\News;
+use App\Models\Channel;
+use App\Models\ChannelLink;
 use App\Models\NewsWithTranslation;
 
 class NewsRepository
@@ -31,11 +32,11 @@ class NewsRepository
         return $this->news->where('channel_link', $channelLink)->get();
     }
 
-    public function getAllByChannelLinkWithTranslation(ChannelLink $channelLink, string $defaultLanguage='En', array $languages=[])
+    public function getAllByChannelLinkWithTranslation(ChannelLink $channelLink, string $originalLanguage, array $languages=[])
     {
         $newsWithTranslation = $this->news->where('channel_link_id', $channelLink->id);
         foreach ($languages as $language) {
-            if ($defaultLanguage === $language) {
+            if ($originalLanguage === $language) {
                 continue;
             }
             $relationMethod = "news" . ucfirst($language);
@@ -55,6 +56,13 @@ class NewsRepository
     public function deleteAllByChannelLink(ChannelLink $channelLink)
     {
         return $this->news->where('channel_link_id', $channelLink->id)->delete();
+    }
+
+    public function deleteAllByChannel(Channel $channel)
+    {
+        News::whereHas('channelLink', function ($query) use ($channel) {
+            $query->where('channel_id', $channel->id);
+        })->delete();
     }
 
     public function delete($id)

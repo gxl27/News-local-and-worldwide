@@ -27,6 +27,10 @@ class ChannelRepository
         return $this->channel->find($id);
     }
 
+    public function getAllWithChannelLinks()
+    {
+        return $this->channel->with('channelLinks')->get();
+    }
 
 
 }

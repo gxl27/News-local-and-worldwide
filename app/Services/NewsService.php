@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Channel;
 use App\Models\ChannelLink;
 use App\Repositories\NewsRepository;
 
@@ -18,9 +19,9 @@ class NewsService
         return $this->newsRepository->getAllByChannelLink($channelLink);
     }
 
-    public function getAllByChannelLinkWithTranslation(ChannelLink $channelLink, string $defaultLanguage='En', array $languages=[])
+    public function getAllByChannelLinkWithTranslation(ChannelLink $channelLink, string $originalLanguage, array $languages=[])
     {
-        return $this->newsRepository->getAllByChannelLinkWithTranslation($channelLink, $defaultLanguage, $languages);
+        return $this->newsRepository->getAllByChannelLinkWithTranslation($channelLink, $originalLanguage, $languages);
     }
 
     public function getById($id)
@@ -31,6 +32,11 @@ class NewsService
     public function deleteAllByChannelLink(ChannelLink $channelLink)
     {
         return $this->newsRepository->deleteAllByChannelLink($channelLink);
+    }
+
+    public function deleteAllByChannel(Channel $channel)
+    {
+        return $this->newsRepository->deleteAllByChannel($channel);
     }
 
     public function delete($id)

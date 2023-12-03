@@ -6,11 +6,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasRoles, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -33,6 +34,9 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    protected $appends = ['role_name'];
+    protected $with = ['roles'];
+
     /**
      * The attributes that should be cast.
      *
@@ -42,6 +46,12 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function getRoleNameAttribute()
+    {
+        $this->loadMissing('roles');
+        return optional($this->roles->first())->name;
+    }
 
     public function userSetting()
     {

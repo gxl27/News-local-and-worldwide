@@ -2,40 +2,38 @@
 
 namespace App\Services\RssNews;
 
-use App\Models\Channel;
-use App\Models\ChannelLink;
+use Carbon\Carbon;
 use App\Models\News;
-use App\Models\NewsEn;
-use App\Models\NewsFr;
-use App\Models\NewsEs;
-use App\Models\NewsIt;
-use App\Models\NewsDe;
-use App\Models\NewsRo;
-use App\Models\NewsPt;
+use App\Models\Channel;
+use App\Models\Language;
+use App\Models\ChannelLink;
+use App\Exceptions\ApiException;
 
 use App\Services\ChannelService;
-use Carbon\Carbon;
+use App\Services\LanguageService;
+use App\Services\NormalizerService;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use App\Exceptions\NormalizerException;
 
 class RssNewsSeekerService
 {
     public function __construct(
-        protected ChannelService $channelService
+        protected ChannelService $channelService,
+        protected LanguageService $languageService,
+        protected NormalizerService $normalizerService
     ) 
     {}
 
-    public function seekNews(): void
+    public function seekNews(Channel $specificChannel = null): void
     {
-        $channels = $this->channelService->getAllActive();
+        $channels = $specificChannel ? [$specificChannel] : $this->channelService->getAllActive();
 
         foreach ($channels as $channel) {
             foreach ($channel->channelLinks as $channelLink) {
                 if ($channelLink->is_active) {
-                    try {
-                        $this->seekNewsByChannelLink($channelLink);
-                    } catch (\Throwable $th) {
-                        throw $th;
-                    }
+                    $this->seekNewsByChannelLink($channelLink);
                 }
             }
         }
@@ -44,89 +42,53 @@ class RssNewsSeekerService
     public function seekNewsByChannelLink(ChannelLink $channelLink): void
     {
         $response = Http::get($channelLink->link);
-        $xmlResponse = simplexml_load_string($response->getBody()->getContents());
+        if ($response->failed()) {
+            throw ApiException::apiRssLinkFailed("Link: $channelLink->link");
+        }
+        $this->normalizeData($response, $channelLink);
+    }
+
+    private function normalizeData(Response $response, ChannelLink $channelLink)
+    {
+        // srite a try catch for this simplexml_load
+        $normalizer = $this->normalizerService->getByChannelLink($channelLink);
+        
+        if (!$normalizer) {
+            throw NormalizerException::normalizerChannelNotFound("Channel id: $channelLink->id");
+        }
+
+        $xmlResponse = $this->xmlToArray(simplexml_load_string($response->getBody()->getContents())) ;
+        
+        
+        
+        
+        
+        $mapper = $this->normalizerService->addMapper($normalizer);
+        if($channelLink->id == 5) {
+            dd($xmlResponse);
+        }
+        if (!$mapper) {
+            throw NormalizerException::normalizerMapperCannotBeGenerated("Normalizer id: $normalizer->id");
+        }
+
         $xmlChannelLink = json_decode(json_encode($xmlResponse), true);
-        $items = $xmlChannelLink['channel']['item'];
+
+        $items = $this->normalizerService->getItems($mapper, $xmlChannelLink);
+        if (!$items) {
+            throw NormalizerException::normalizerDataFailed("Normalizer id: $normalizer->id - link: $channelLink->link");
+        }
+
+        $defaultLang = ucfirst($channelLink->channel->language->code);
+        $languages = $this->languageService->getNonDefaultLanguageSystem($defaultLang);
         foreach ($items as $item) {
-            
             $existingNews = News::where('uid', $item['guid'])->first();
-            
             if (!$existingNews) {
-                $transTitleRo = Http::post(env('TRANSLATE_ADDRESS')."translate", [
-                    'q' => $item['title'],
-                    'source' => 'en',
-                    'target' => 'ro'
-                ]);
                 
-                $transDescriptionRo = Http::post(env('TRANSLATE_ADDRESS')."translate", [
-                    'q' => $item['description'],
-                    'source' => 'en',
-                    'target' => 'ro'
-                ]);
-    
-                $transTitleEs = Http::post(env('TRANSLATE_ADDRESS')."translate", [
-                    'q' => $item['title'],
-                    'source' => 'en',
-                    'target' => 'es'
-                ]);
-    
-                $transDescriptionEs = Http::post(env('TRANSLATE_ADDRESS')."translate", [
-                    'q' => $item['description'],
-                    'source' => 'en',
-                    'target' => 'es'
-                ]);
-
-                $transTitleFr = Http::post(env('TRANSLATE_ADDRESS')."translate", [
-                    'q' => $item['title'],
-                    'source' => 'en',
-                    'target' => 'fr'
-                ]);
+                $publishAt = $item['pubDate'] ?
+                    Carbon::createFromFormat('D, d M Y H:i:s O', $item['pubDate'])->toDateTimeString() :
+                    (new \DateTime())->format('D, d M Y H:i:s O');
                 
-                $transDescriptionFr = Http::post(env('TRANSLATE_ADDRESS')."translate", [
-                    'q' => $item['description'],
-                    'source' => 'en',
-                    'target' => 'fr'
-                ]);
-
-                $transTitleIt = Http::post(env('TRANSLATE_ADDRESS')."translate", [
-                    'q' => $item['title'],
-                    'source' => 'en',
-                    'target' => 'it'
-                ]);
-
-                $transDescriptionIt = Http::post(env('TRANSLATE_ADDRESS')."translate", [
-                    'q' => $item['description'],
-                    'source' => 'en',
-                    'target' => 'it'
-                ]);
-
-                $transTitleDe = Http::post(env('TRANSLATE_ADDRESS')."translate", [
-                    'q' => $item['title'],
-                    'source' => 'en',
-                    'target' => 'de'
-                ]);
-
-                $transDescriptionDe = Http::post(env('TRANSLATE_ADDRESS')."translate", [
-                    'q' => $item['description'],
-                    'source' => 'en',
-                    'target' => 'de'
-                ]);
-
-                $transTitlePt = Http::post(env('TRANSLATE_ADDRESS')."translate", [
-                    'q' => $item['title'],
-                    'source' => 'en',
-                    'target' => 'pt'
-                ]);
-
-                $transDescriptionPt = Http::post(env('TRANSLATE_ADDRESS')."translate", [
-                    'q' => $item['description'],
-                    'source' => 'en',
-                    'target' => 'pt'
-                ]);
-                // dd($item['title']);
-                // dd($trans->json()['translatedText']);
-                $publishAt = Carbon::createFromFormat('D, d M Y H:i:s O', $item['pubDate'])->toDateTimeString();
-                $news = new News([
+                    $news = new News([
                     'title'       => $item['title'],
                     'link'        => $item['link'],
                     'description' => $item['description'],
@@ -134,77 +96,56 @@ class RssNewsSeekerService
                     'uid'        => $item['guid'],
                     'image' => null,
                     'channel_link_id' => $channelLink->id,
-
-                    // Add other fields as needed
                 ]);
                 
-                // Save the News model to the database
                 $news->save();
                 
-                if ($transTitleRo->json()['translatedText'] && $transDescriptionRo->json()['translatedText']) {
-                   
-                    $newsTransRo = new NewsRo([
-                        'title'       => $transTitleRo->json()['translatedText'],
-                        'description' => $transDescriptionRo->json()['translatedText'],
-                        'news_id' => $news->id
+                // translation
+                foreach ($languages as $language) {
+                    ${"trans" . $language['name']} = Http::post(env('TRANSLATE_ADDRESS')."translate", [
+                        'q' => [$item['title'], $item['description']],
+                        'source' => strtolower($defaultLang),
+                        'target' => strtolower($language['name'])
                     ]);
-                    $newsTransRo->save();
-                }
-    
-                if ($transTitleEs->json()['translatedText'] && $transDescriptionEs->json()['translatedText']) {
-                    $newsTransEs = new NewsEs([
-                        'title'       => $transTitleEs->json()['translatedText'],
-                        'description' => $transDescriptionEs->json()['translatedText'],
-                        'news_id' => $news->id
-                    ]);
-                    $newsTransEs->save();
-                }
-
-                if ($transTitleFr->json()['translatedText'] && $transDescriptionFr->json()['translatedText']) {
-                    $newsTransFr = new NewsFr([
-                        'title'       => $transTitleFr->json()['translatedText'],
-                        'description' => $transDescriptionFr->json()['translatedText'],
-                        'news_id' => $news->id
-    
-                        // Add other fields as needed
-                    ]);
-                    $newsTransFr->save();
-                }
-
-                if ($transTitleIt->json()['translatedText'] && $transDescriptionIt->json()['translatedText']) {
-                    $newsTransIt = new NewsIt([
-                        'title'       => $transTitleIt->json()['translatedText'],
-                        'description' => $transDescriptionIt->json()['translatedText'],
-                        'news_id' => $news->id
-    
-                        // Add other fields as needed
-                    ]);
-                    $newsTransIt->save();
-                }
-
-                if ($transTitleDe->json()['translatedText'] && $transDescriptionDe->json()['translatedText']) {
-                    $newsTransDe = new NewsDe([
-                        'title'       => $transTitleDe->json()['translatedText'],
-                        'description' => $transDescriptionDe->json()['translatedText'],
-                        'news_id' => $news->id
-    
-                        // Add other fields as needed
-                    ]);
-                    $newsTransDe->save();
-                }
-
-                if ($transTitlePt->json()['translatedText'] && $transDescriptionPt->json()['translatedText']) {
-                    $newsTransPt = new NewsPt([
-                        'title'       => $transTitlePt->json()['translatedText'],
-                        'description' => $transDescriptionPt->json()['translatedText'],
-                        'news_id' => $news->id
-    
-                        // Add other fields as needed
-                    ]);
-                    $newsTransPt->save();
+                    ${"transArray" . $language['name']} = ${"trans" . $language['name']}->json()['translatedText'];
+                    
+                    $className = 'App\Models\News' . ucfirst($language['name']);
+                    if(${"transArray" . $language['name']} && class_exists($className) && (${"transArray" . $language['name']}[0]) && (${"transArray" . $language['name']}[0])) {
+                        $className::create([
+                            'title'       => ${"transArray" . $language['name']}[0],
+                            'description' => ${"transArray" . $language['name']}[1],
+                            'news_id' => $news->id
+                        ]);
+                    }
                 }
             }
         }
+        
+        
+        return $normalizer;
     }
+
+    public function xmlToArray($xml) 
+    {
+        $array = [];
     
+        foreach ($xml as $key => $value) {
+            if (count($value->children()) > 0) {
+                // If the element has children, recursively convert them to an array
+                $array[$key] = $this->xmlToArray($value);
+            } elseif (count($value->attributes()) > 0) {
+                // If the element has attributes, include them in the array
+                $attributes = [];
+                foreach ($value->attributes() as $attrKey => $attrValue) {
+                    $attributes[$attrKey] = (string) $attrValue;
+                }
+                $array[$key]['@attributes'] = $attributes;
+            } else {
+                // Otherwise, use the element value
+                $array[$key] = (string) $value;
+            }
+        }
+    
+        return $array;
+    }
 }

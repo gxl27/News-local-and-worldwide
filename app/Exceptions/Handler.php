@@ -4,6 +4,7 @@ namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
+use Illuminate\Support\Facades\Log;
 
 class Handler extends ExceptionHandler
 {
@@ -23,8 +24,17 @@ class Handler extends ExceptionHandler
      */
     public function register(): void
     {
-        $this->reportable(function (Throwable $e) {
-            //
+        $this->renderable(function (InternalException $e) {
+            $code = $e->getInternalCode();
+            $logChannel = $code->getLogFile();
+            Log::channel($logChannel)->error($e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'code' => $code->value,
+                'message' => $e->getMessage(),
+                'description' => $e->getDescription(),
+            ], $e->getCode());
         });
     }
+
 }

@@ -4,18 +4,14 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 
-use App\Models\ChannelLink;
-use Illuminate\Support\Facades\Http;
-use App\Models\News;
-use App\Services\RssNews\RssNewsSeekerService;
+use App\Models\Channel;
 use App\Services\NewsService;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 
-class DeleteNewsByChannel extends Command
+class DeleteNewsByChannel extends CommandWithExceptionTrait
 {
-    protected $signature = 'news:delete {channelLinkId}';
-    protected $description = 'Delete news by channel link ID';
+    protected $signature = 'news:delete {channelId}';
+    protected $description = 'Delete news by channel ID';
 
     public function __construct(
         protected NewsService $newsService
@@ -31,24 +27,23 @@ class DeleteNewsByChannel extends Command
      */
     public function handle() {
 
-        $channelLinkId = $this->argument('channelLinkId');
-        $validator = Validator::make(['channelLinkId' => $channelLinkId], [
-            'channelLinkId' => 'required|exists:channel_links,id',
+        $channelId = $this->argument('channelId');
+        $validator = Validator::make(['channelId' => $channelId], [
+            'channelId' => 'required|exists:channels,id',
         ]);
 
         if ($validator->fails()) {
-            $this->error("Invalid channelLinkId: $channelLinkId");
+            $this->error("Invalid channelId: $channelId");
             return Command::FAILURE;
         }
 
         try {
-            $channelLink = ChannelLink::find($channelLinkId);
-            $this->newsService->deleteAllByChannelLink($channelLink);
-            $this->info("News deleted for channel link ID: $channelLinkId");
+            $channel = Channel::find($channelId);
+            $this->newsService->deleteAllByChannel($channel);
+            $this->info("News deleted for channel ID: $channelId");
         } catch (\Exception $e) {
-            $this->error("Error: " . $e->getMessage());
-            logger($e->getMessage());
-            return Command::FAILURE;
+            // the exception is handled by the trait
+            $this->handleException($e);
         }
 
         return Command::SUCCESS;

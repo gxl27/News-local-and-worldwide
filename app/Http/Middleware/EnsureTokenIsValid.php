@@ -31,7 +31,7 @@ class EnsureTokenIsValid
             }
         }
 
-        return redirect('login');
+        return response()->json(['message' => 'Unauthorized'], 401);
 
     }
 }

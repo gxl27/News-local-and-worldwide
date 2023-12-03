@@ -20,8 +20,13 @@ class ChannelController extends Controller
     {
         $data = request()->validate([
             'name' => 'required',
-            'link' => 'required',
+            // check country id_exists in countries table
+            'country_id' => 'required|exists:countries,id',
+            'language_id' => 'required|exists:languages,id',
         ]);
+
+        $data['icon'] = request('icon');
+        $data['is_active'] = true;
         $channel = Channel::create($data);
 
         return response()->json([

@@ -25,4 +25,9 @@ class ChannelLink extends Model
         return $this->hasMany(News::class);
     }
 
+    public function normalizer()
+    {
+        return $this->hasOne(Normalizer::class);
+    }
+
 }

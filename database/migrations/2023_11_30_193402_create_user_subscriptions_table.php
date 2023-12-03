@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('user_subscriptions', function (Blueprint $table) {
             $table->id();
             $table->boolean('is_active')->default(true);
+            $table->foreignId('user_id')->constrained();
             $table->timestamps();
 
         });

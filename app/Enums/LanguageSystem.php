@@ -2,27 +2,27 @@
 
 namespace App\Enums;
 
-enum LanguageList: int
+enum LanguageSystem: int
 {
     case EN = 1;
     case ES = 2;
-    case DE = 3;
+    // case DE = 3;
     case FR = 4;
     case RO = 5;
-    case IT = 6;
-    case PT = 7;
+    // case IT = 6;
+    // case PT = 7;
 
     public function alias() :string
     {
         return match($this) 
         {
-            LanguageList::EN => 'En',
-            LanguageList::ES => 'Es',
-            LanguageList::DE => 'De',
-            LanguageList::FR => 'Fr',
-            LanguageList::RO => 'Ro',
-            LanguageList::IT => 'It',
-            LanguageList::PT => 'Pt',
+            LanguageSystem::EN => 'En',
+            LanguageSystem::ES => 'Es',
+            // LanguageSystem::DE => 'De',
+            LanguageSystem::FR => 'Fr',
+            LanguageSystem::RO => 'Ro',
+            // LanguageSystem::IT => 'It',
+            // LanguageSystem::PT => 'Pt',
         };
     }
     
@@ -30,7 +30,7 @@ enum LanguageList: int
     public static function getAllValues() :array
     {
         $array = [];
-        $cases = LanguageList::cases();
+        $cases = LanguageSystem::cases();
         for ($i = 0; $i < sizeof($cases); $i++) {
             $array[$i] = Self::getValues($cases[$i]);
         }
@@ -48,7 +48,7 @@ enum LanguageList: int
 
     public static function getAllValuesById() :array
     {
-        return array_column(LanguageList::cases(), 'value');
+        return array_column(LanguageSystem::cases(), 'value');
     }
 
 }

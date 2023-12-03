@@ -2,15 +2,17 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
+use Carbon\Carbon;
+use App\Models\News;
 
 use App\Models\ChannelLink;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
-use App\Models\News;
+use App\Exceptions\InternalException;
 use App\Services\RssNews\RssNewsSeekerService;
-use Carbon\Carbon;
 
-class RssNews extends Command
+class RssNews extends CommandWithExceptionTrait
 {
     protected $signature = 'rss:news';
     protected $description = 'Rss news seek service';
@@ -32,8 +34,8 @@ class RssNews extends Command
         try {
             $this->rssNewsSeekerService->seekNews();
         } catch (\Exception $e) {
-            $this->error("Error: " . $e->getMessage());
-            logger($e->getMessage());
+            // the exception is handled by the trait
+            $this->handleException($e);
             return Command::FAILURE;
         }
 
