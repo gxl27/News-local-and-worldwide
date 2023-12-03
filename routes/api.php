@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Route;
 
 // Route::middleware(['token.active', 'role:Admin'])->group(function () {
 
-    Route::get('/', 'HomeController@index')->name('home');
+    // Route::get('/', 'HomeController@index')->name('home');
     Route::get('/show/{id}/{languagesString}', 'HomeController@show')->name('show');
 
     // channel resources splited

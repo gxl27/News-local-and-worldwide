@@ -65,7 +65,7 @@ class NormalizerService
         return $mapper;
     }
 
-    public function getItems($normalizer, $xml) 
+    public function getItems($normalizer, $xml, $channel_id) 
     {
         if (!is_array($normalizer) || !is_array($xml)) {
             return false;
@@ -89,11 +89,16 @@ class NormalizerService
                 return false;
             }
         }
+
         $normalizedData = [];
         // in case there are leaf elements as an array (ex 'image' it's in 'encoded' array)
-        $this->newsNormalizer->setNormalizer($normalizer);
+        $this->newsNormalizer->setNormalizer($normalizer, $channel_id);
         for ($i = 0 ; $i < sizeof($items) ; $i++) {
-            $normalizedData[$i] = $this->newsNormalizer->normalize($items[$i]);
+            $norm = $this->newsNormalizer->normalize($items[$i]);
+            if (!$norm) {
+                continue;
+            }
+            $normalizedData[$i] = $norm;
            
         }
     

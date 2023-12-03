@@ -57,23 +57,21 @@ class RssNewsSeekerService
             throw NormalizerException::normalizerChannelNotFound("Channel id: $channelLink->id");
         }
 
-        $xmlResponse = $this->xmlToArray(simplexml_load_string($response->getBody()->getContents())) ;
+        $xmlResponse = simplexml_load_string($response->getBody()->getContents(), "SimpleXmlElement",LIBXML_NOCDATA);
         
         
         
         
         
         $mapper = $this->normalizerService->addMapper($normalizer);
-        if($channelLink->id == 5) {
-            dd($xmlResponse);
-        }
+
         if (!$mapper) {
             throw NormalizerException::normalizerMapperCannotBeGenerated("Normalizer id: $normalizer->id");
         }
 
         $xmlChannelLink = json_decode(json_encode($xmlResponse), true);
 
-        $items = $this->normalizerService->getItems($mapper, $xmlChannelLink);
+        $items = $this->normalizerService->getItems($mapper, $xmlChannelLink, $channelLink->id);
         if (!$items) {
             throw NormalizerException::normalizerDataFailed("Normalizer id: $normalizer->id - link: $channelLink->link");
         }
@@ -81,6 +79,7 @@ class RssNewsSeekerService
         $defaultLang = ucfirst($channelLink->channel->language->code);
         $languages = $this->languageService->getNonDefaultLanguageSystem($defaultLang);
         foreach ($items as $item) {
+
             $existingNews = News::where('uid', $item['guid'])->first();
             if (!$existingNews) {
                 
@@ -123,29 +122,5 @@ class RssNewsSeekerService
         
         
         return $normalizer;
-    }
-
-    public function xmlToArray($xml) 
-    {
-        $array = [];
-    
-        foreach ($xml as $key => $value) {
-            if (count($value->children()) > 0) {
-                // If the element has children, recursively convert them to an array
-                $array[$key] = $this->xmlToArray($value);
-            } elseif (count($value->attributes()) > 0) {
-                // If the element has attributes, include them in the array
-                $attributes = [];
-                foreach ($value->attributes() as $attrKey => $attrValue) {
-                    $attributes[$attrKey] = (string) $attrValue;
-                }
-                $array[$key]['@attributes'] = $attributes;
-            } else {
-                // Otherwise, use the element value
-                $array[$key] = (string) $value;
-            }
-        }
-    
-        return $array;
     }
 }

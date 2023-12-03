@@ -8,13 +8,26 @@ use PhpOffice\PhpSpreadsheet\Calculation\LookupRef\Formula;
 class NewsNormalizer implements NormalizeContract{
 
     protected array $normalizer;
-    public function normalize(array $data): array
+    protected int $channelId;
+    public function normalize(array $data): array|null
     {
         $newsData = [];
+
+        if (
+            !array_key_exists($this->normalizer['title_normalizer'], $data) ||
+            !array_key_exists($this->normalizer['description_normalizer'], $data)
+        ) 
+        {
+            return null;
+        }
         if (is_array($this->normalizer['title_normalizer'])) {
             $newsData['title'] = $this->getLeaf($this->normalizer['title_normalizer'], $data);
         } else {
             $newsData['title'] = $data[$this->normalizer['title_normalizer']];
+        }
+        if (strlen($newsData['title']) > 255) {
+            // get only first 255 characters
+            $newsData['title'] = substr($newsData['title'], 0, 255);
         }
       
         if (is_array($this->normalizer['description_normalizer'])) {
@@ -30,6 +43,9 @@ class NewsNormalizer implements NormalizeContract{
             $newsData['link'] = $this->getLeaf($this->normalizer['link_normalizer'], $data);
         } else {
             $newsData['link'] = $data[$this->normalizer['link_normalizer']];
+        }
+        if (strlen($newsData['link']) > 255) {
+            $newsData['link'] = '-';
         }
 
         if (is_array($this->normalizer['image_normalizer'])) {
@@ -54,9 +70,10 @@ class NewsNormalizer implements NormalizeContract{
         return $newsData;
     }
 
-    public function setNormalizer(array $data): self
+    public function setNormalizer(array $data, $channelId): self
     {
         $this->normalizer = $data;
+        $this->channelId = $channelId;
 
         return $this;
     }
