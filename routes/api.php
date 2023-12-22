@@ -2,7 +2,6 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -18,8 +17,13 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // });
 
-// Route::middleware(['token.active', 'role:Admin'])->group(function () {
+// Auth::routes();
+Route::post('/register', 'AuthController@register')->name('register');
+Route::post('/login', 'AuthController@login')->name('login');
+Route::post('/logout', 'AuthController@logout')->middleware('auth:sanctum');
 
+// Route::middleware(['token.active'])->group(function () {
+// Route::middleware(['token.active', 'role:Admin'])->group(function () {
     // Route::get('/', 'HomeController@index')->name('home');
     Route::get('/show/{id}/{languagesString}', 'HomeController@show')->name('show');
 
