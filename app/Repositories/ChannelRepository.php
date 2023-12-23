@@ -12,6 +12,11 @@ class ChannelRepository
     )
     {}
 
+    public function getPublicAllWithChannelLink()
+    {
+        return $this->channel::with('channelLinks')->with('channelLinks.category')->get();
+    }
+
     public function getAll()
     {
         return $this->channel->all();
@@ -31,6 +36,4 @@ class ChannelRepository
     {
         return $this->channel->with('channelLinks')->get();
     }
-
-
 }

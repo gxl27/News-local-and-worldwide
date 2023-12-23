@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Channel;
 use App\Models\ChannelLink;
 use App\Repositories\NewsRepository;
+use Illuminate\Support\Facades\Redis;
 
 class NewsService
 {
@@ -13,6 +14,20 @@ class NewsService
         protected NewsRepository $newsRepository
     )
     {}
+
+    public function getPublicAll()
+    {
+        $cacheKey = 'public_all_news';
+        $cachedNews = Redis::get($cacheKey);
+        if ($cachedNews) {
+            // If the data is in the cache, return it
+            return $cachedNews;
+        }
+        $news = $this->newsRepository->getPublicAll();
+        Redis::set($cacheKey, $news);
+
+        return $news;
+    }
 
     public function getAllByChannelLink(ChannelLink $channelLink)
     {

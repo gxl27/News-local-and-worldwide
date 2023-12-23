@@ -21,8 +21,15 @@ use App\Exceptions\NormalizerException;
 class NewsController extends Controller
 {
 
+    public function __construct(
+        protected ChannelService $channelService,
+        protected NewsService $newsService
+    )
+    {}
+
     public function index()
     {
+        return response()->json($this->newsService->getPublicAll());
     }
     
 

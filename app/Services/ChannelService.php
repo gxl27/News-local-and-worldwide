@@ -3,9 +3,11 @@
 namespace App\Services;
 
 
-use App\Models\Channel;
 use App\Models\User;
+use App\Models\Channel;
+use Illuminate\Support\Facades\Cache;
 use App\Repositories\ChannelRepository;
+use Illuminate\Support\Facades\Redis;
 
 class ChannelService
 {
@@ -14,6 +16,20 @@ class ChannelService
         protected ChannelRepository $channelRepository
     )
     {}
+
+    public function getPublicAllWithChannelLink()
+    {
+        $cacheKey = 'public_all_with_channel_link';
+        $cachedChannels = Redis::get($cacheKey);
+        if ($cachedChannels) {
+            // If the data is in the cache, return it
+            return $cachedChannels;
+        }
+        $channels = $this->channelRepository->getPublicAllWithChannelLink();
+        Redis::set($cacheKey, $channels);
+
+        return $channels;
+    }
 
     public function getAll()
     {

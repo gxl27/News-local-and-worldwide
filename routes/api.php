@@ -21,12 +21,29 @@ use Illuminate\Support\Facades\Route;
 Route::post('/register', 'AuthController@register')->name('register');
 Route::post('/login', 'AuthController@login')->name('login');
 Route::post('/logout', 'AuthController@logout')->middleware('auth:sanctum');
+// group route prefix user
+Route::prefix('user')->group(function () {
+    Route::get('/channels', 'User\ChannelController@index')->name('user.channels.index');
+    Route::get('/channels/{id}/{languagesString}', 'User\ChannelController@show')->name('user.channels.show');
+    Route::get('/news/{id}/{languagesString}', 'User\NewsController@show')->name('user.news.show');
+    Route::get('/news', 'User\NewsController@index')->name('user.news.all');
+    // Route::get('/show/{id}/{languagesString}', 'User\NewsController@show')->name('user.news.show');
+});
+
+// group route prefix admin
+// Route::prefix('admin')->group(function () {
+//     Route::get('/channels', 'Api\Admin\ChannelController@index')->name('admin.channels.index');
+//     Route::get('/channels/{id}/{languagesString}', 'Api\Admin\ChannelController@show')->name('admin.channels.show');
+//     Route::get('/news/{id}/{languagesString}', 'Api\Admin\NewsController@show')->name('admin.news.show');
+// });
+
+
 
 // Route::middleware(['token.active'])->group(function () {
 // Route::middleware(['token.active', 'role:Admin'])->group(function () {
     // Route::get('/', 'HomeController@index')->name('home');
     Route::get('/show/{id}/{languagesString}', 'HomeController@show')->name('show');
-
+    Route::get('/channels', 'Admin\ChannelController@index')->name('admin.channels.index');
     // channel resources splited
     // Route::get('/admin/channels', 'Admin\ChannelController@index')->name('admin.channels.index');
     // Route::get('/admin/channels/create', 'Admin\ChannelController@create')->name('admin.channels.create');

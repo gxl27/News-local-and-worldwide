@@ -22,6 +22,11 @@ class NewsRepository
     {
     }
 
+    public function getPublicAll()
+    {
+        return $this->news::with('newsRo')->with('newsIt')->with('newsFr')->with('newsDe')->with('newsEs')->with('newsPt')->with('newsEn')->get();
+    }
+
     public function getAll()
     {
         return $this->news->all();
