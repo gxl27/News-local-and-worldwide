@@ -51,4 +51,30 @@ enum LanguageSystem: int
         return array_column(LanguageSystem::cases(), 'value');
     }
 
+    public function getAllKeysArrayMethods(): array
+    {
+        $array = [];
+        $cases = LanguageSystem::getAllValues();
+   
+        foreach ($cases as $case) {
+                $array[] = $case['name'];
+        }
+
+        return $array;
+    }
+
+    public function getAllKeysArrayMethodsExcept(string $excludeCode): array
+    {
+        $array = [];
+        $cases = LanguageSystem::getAllValues();
+   
+        foreach ($cases as $case) {
+            if (strtolower($case['name']) !== strtolower($excludeCode)) {
+                $array[] = $case['name'];
+            }
+        }
+
+        return $array;
+    }
+
 }

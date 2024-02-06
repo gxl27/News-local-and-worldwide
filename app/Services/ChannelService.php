@@ -51,6 +51,11 @@ class ChannelService
         return $this->channelRepository->getAllWithChannelLinks();
     }
 
+    public function create($data)
+    {
+        return $this->channelRepository->create($data);
+    }
+
     // public function getChannelsByUser(User $user)
     // {
     //     return $this->channelRepository->getChannelsByUser($user);

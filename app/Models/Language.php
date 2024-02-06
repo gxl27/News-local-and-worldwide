@@ -11,6 +11,7 @@ class Language extends Model
 
     protected $guarded = ['id'];
 
+    public $timestamps = false;
     public function channels()
     {
         return $this->hasMany(Channel::class);

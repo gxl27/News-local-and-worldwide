@@ -2,15 +2,24 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
-use App\Http\Controllers\Controller;
 use App\Models\Channel;
+use App\Services\ChannelService;
+use App\Http\Controllers\Controller;
 
 class ChannelController extends Controller
 {
+
+    public function __construct(
+        protected ChannelService $channelService
+    )
+    {
+        
+    }
+        
     // resorces
     public function index()
     {
-        $channels = Channel::all();
+        $channels = $this->channelService->getAll();
 
         return response()->json([
             'channels' => $channels,
@@ -23,17 +32,17 @@ class ChannelController extends Controller
             // check country id_exists in countries table
             'country_id' => 'required|exists:countries,id',
             'language_id' => 'required|exists:languages,id',
+            'icon' => 'required',
         ]);
 
-        $data['icon'] = request('icon');
-        $data['is_active'] = true;
-        $channel = Channel::create($data);
+        $channel = $this->channelService->create($data);
 
         return response()->json([
             'message' => 'Category created successfully.',
             'channel' => $channel,
         ]);
     }
+   
     public function edit(Channel $channel)
     {
         return response()->json([
@@ -41,13 +50,15 @@ class ChannelController extends Controller
         ]);
     }
     public function update(Channel $channel)
-    {
+    {  
         $data = request()->validate([
             'name' => 'required',
-            'link' => 'required',
+            'country_id' => 'required|exists:countries,id',
+            'language_id' => 'required|exists:languages,id',
+            'icon' => 'required',
         ]);
         $channel->update($data);
-
+     
         return response()->json([
             'message' => 'Channel updated successfully.',
             'channel' => $channel,

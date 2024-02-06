@@ -15,8 +15,8 @@ use App\Traits\CommandExceptionHandler;
 class CommandWithExceptionTrait extends Command
 {
     use CommandExceptionHandler;
-    protected $signature = 'news:deleteAll';
-    protected $description = 'Delete all news';
+    protected $signature = 'news:a';
+    protected $description = 'extends';
 
     public function __construct(
     )

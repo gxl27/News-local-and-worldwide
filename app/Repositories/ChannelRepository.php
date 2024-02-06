@@ -36,4 +36,9 @@ class ChannelRepository
     {
         return $this->channel->with('channelLinks')->get();
     }
+
+    public function create($data)
+    {
+        return $this->channel->create($data);
+    }
 }

@@ -5,6 +5,7 @@ namespace App\Enums;
 enum ExceptionCode: int
 {
     case ApiRssLinkFailed = 400;
+    case NewsFailedJob = 444;
     case NormalizerChannelNotFound = 1000;
 
     case NormalizerMapperCannotBeGenerated = 1002;
@@ -30,6 +31,7 @@ enum ExceptionCode: int
         return match(true) 
         {
             $value >= 1000 => 'normalizer_error',
+            $value >= 444 => 'failed_job',
             $value >= 400 => 'api_error',
             default => 'errorlog'
         };

@@ -1,17 +1,23 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Auth;
 
 use App\Models\User;
+use App\Models\Country;
+use App\Enums\RolesEnum;
+use App\Models\Language;
+use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
+use App\Services\UserSettingService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Providers\RouteServiceProvider;
+use App\Services\UserSubscriptionService;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Request;
 use Illuminate\Foundation\Auth\RegistersUsers;
 
-class AuthController extends Controller
+class RegisterController extends Controller
 {
     /*
     |--------------------------------------------------------------------------
@@ -31,16 +37,20 @@ class AuthController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = RouteServiceProvider::HOME;
+    protected $redirectTo = "api/user/channels";
 
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(
+        protected UserSettingService $userSettingService,
+        protected UserSubscriptionService $userSubscriptionService
+    )
     {
         $this->middleware('guest');
+
     }
 
     /**
@@ -57,10 +67,12 @@ class AuthController extends Controller
                 'message' => 'Secret key is not valid'
             ], 401);
         }
+        
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed']
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'country_id' => ['required', 'integer', 'exists:countries,id'],
         ]);
     }
 
@@ -77,8 +89,18 @@ class AuthController extends Controller
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
-
+ 
+        $country = Country::find($data['country_id']);
+        $language = Language::find($data['language_id']) ? Language::find($data['language_id']) : Language::where('code', 'en')->first();
+        
+        $this->userSettingService->generateDefault($user, $country, $language);
+        $this->userSubscriptionService->generateDefault($user);
+       
         $user->createToken('auth-tokenn');
+
+        // Get or create a role named 'user' (you can adjust the role name based on your needs)
+        // $role = app(Role::class)->findOrCreate(RolesEnum::USER->value, 'web');
+        // $user->assignRole(RolesEnum::PREMIUM);
 
         return $user;
 
@@ -94,16 +116,14 @@ class AuthController extends Controller
     {
         // Your login logic
         $authenticated = Auth::attempt($request->only('email', 'password'));
-        $message = 'Loginsdasd successful' . request('name');
-        return response()->json(['message' => $message],404);
+        
         if ($authenticated) {
             // User is authenticated
             $user = Auth::user();
             $user->createToken('auth-tokenn');
-
             $message = 'Login successful';
             return response()->json([
-                'message' => $message,
+            'message' => $message,
                 'token' => $user->tokens->first()->token,
                 'name' => $user->name
             ],200);
@@ -116,10 +136,8 @@ class AuthController extends Controller
         }
     }
 
-    protected function registered()
+    protected function registered(Request $request, $user)
     {
-        $user = Auth::user();
- 
         $message = 'Registration successful';
         return response()->json([
             'message' => $message,
@@ -127,4 +145,9 @@ class AuthController extends Controller
             'name' => $user->name
         ],200);
     }
+
+    // protected function authenticated(Request $request, $user)
+    // {
+    //     return response()->json(['message' => 'Authentication successful']);
+    // }
 }

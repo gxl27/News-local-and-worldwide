@@ -12,3 +12,8 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+Route::middleware(['secret.key'])->group(function () {
+    Auth::routes();
+    Route::post('/login', 'Auth\RegisterController@login')->name('login');
+});

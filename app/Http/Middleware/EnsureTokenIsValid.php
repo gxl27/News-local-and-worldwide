@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Models\PersonalAccessToken;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 
 class EnsureTokenIsValid
 {
@@ -21,11 +23,10 @@ class EnsureTokenIsValid
 
             return $next($request);
         }
-
-        // if user is not auth, check of X-Api-Key token
-        if (request('X-Api-Key')) {
-            $token = PersonalAccessToken::where('token', request('X-Api-Key'))->first();
-            if ($token && $token->is_active) {
+        // if user is not auth, check of x-api-key token
+        if ($request->header('x-api-key')) {
+            $token = PersonalAccessToken::where('token', $request->header('x-api-key'))->first();
+            if ($token) {
 
                 return $next($request);
             }

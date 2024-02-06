@@ -16,6 +16,7 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->json('channel_links')->default(json_encode([]));
             $table->foreignId('country_id')->constrained();
+            $table->foreignId('language_id')->constrained();
             $table->foreignId('user_id')->constrained();
 
         });

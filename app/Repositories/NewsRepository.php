@@ -2,10 +2,12 @@
 
 namespace App\Repositories;
 
+use App\Constants\Config;
 use App\Models\News;
 use App\Models\Channel;
 use App\Models\ChannelLink;
 use App\Models\NewsWithTranslation;
+use Illuminate\Support\Facades\Redis;
 
 class NewsRepository
 {
@@ -32,9 +34,44 @@ class NewsRepository
         return $this->news->all();
     }
 
-    public function getAllByChannelLink(ChannelLink $channelLink)
+    public function getAllByChannelLink(ChannelLink $channelLink, int $page = 1)
     {
-        return $this->news->where('channel_link', $channelLink)->get();
+        if ($page === 1) {
+            $cacheKey = 'channel_link_news_' . $channelLink->id;
+            $cachedNews = Redis::get($cacheKey);
+            if ($cachedNews) {
+                return json_decode($cachedNews, true);
+            }
+
+            $news = $this->news->where('channel_link_id', $channelLink->id)
+                ->with('newsRo')
+                ->with('newsIt')
+                ->with('newsFr')
+                ->with('newsDe')
+                ->with('newsEs')
+                ->with('newsPt')
+                ->with('newsEn')
+                ->orderBy('publish_at', 'desc')
+                ->limit(Config::CHANNELLINK_NEWS_PER_PAGE)
+                ->get();
+
+            Redis::set($cacheKey, $news);
+        } else {
+            $news = $this->news->where('channel_link_id', $channelLink->id)
+                ->with('newsRo')
+                ->with('newsIt')
+                ->with('newsFr')
+                ->with('newsDe')
+                ->with('newsEs')
+                ->with('newsPt')
+                ->with('newsEn')
+                ->orderBy('publish_at', 'desc')
+                ->skip(Config::CHANNELLINK_NEWS_PER_PAGE * ($page - 1))
+                ->take(Config::CHANNELLINK_NEWS_PER_PAGE)
+                ->get();
+        }
+
+        return json_decode($news, true);
     }
 
     public function getAllByChannelLinkWithTranslation(ChannelLink $channelLink, string $originalLanguage, array $languages=[])
@@ -55,8 +92,9 @@ class NewsRepository
 
     public function getById($id)
     {
-        return $this->news->find($id);
+        return $this->news->where('id', $id)->with('newsRo')->with('newsIt')->with('newsFr')->with('newsDe')->with('newsEs')->with('newsPt')->with('newsEn');
     }
+
 
     public function deleteAllByChannelLink(ChannelLink $channelLink)
     {

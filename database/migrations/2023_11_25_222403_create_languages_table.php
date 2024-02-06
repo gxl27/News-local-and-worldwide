@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('icon');
             $table->string('code')->unique();
             $table->boolean('is_active')->default(false);
-            $table->timestamps();
         });
     }
 
