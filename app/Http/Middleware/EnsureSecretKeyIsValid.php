@@ -24,7 +24,7 @@ class EnsureSecretKeyIsValid
             return $next($request);
         }
 
-        return response()->json(['message' => 'Not Allowed'], 402);
+        return response()->json(['message' => 'Not Allowed'], 403);
 
     }
 }

@@ -11,5 +11,7 @@ class Config
     const USER_MAX_NEWS = 20;
     const PREMIUM_MAX_CHANNEL_LINKS = 100;
     const PREMIUM_MAX_NEWS = 100;
+    const USER_TOKEN_EXPIRATION_DAYS = 30;
+    const ADMIN_TOKEN_EXPIRATION_DAYS = 100;
     
 }

@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         $schedule->command('rss:news')->everySixHours();
+        $schedule->command('sanctum:prune-expired --hours=24')->daily();
     }
 
     /**

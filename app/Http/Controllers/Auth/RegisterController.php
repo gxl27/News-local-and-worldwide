@@ -6,7 +6,9 @@ use App\Models\User;
 use App\Models\Country;
 use App\Enums\RolesEnum;
 use App\Models\Language;
+use App\Constants\Config;
 use Spatie\Permission\Models\Role;
+use App\Models\PersonalAccessToken;
 use App\Http\Controllers\Controller;
 use App\Services\UserSettingService;
 use Illuminate\Support\Facades\Auth;
@@ -14,6 +16,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Providers\RouteServiceProvider;
 use App\Services\UserSubscriptionService;
 use Illuminate\Support\Facades\Validator;
+use App\Services\PersonalAccessTokenService;
 use Symfony\Component\HttpFoundation\Request;
 use Illuminate\Foundation\Auth\RegistersUsers;
 
@@ -46,7 +49,8 @@ class RegisterController extends Controller
      */
     public function __construct(
         protected UserSettingService $userSettingService,
-        protected UserSubscriptionService $userSubscriptionService
+        protected UserSubscriptionService $userSubscriptionService,
+        protected PersonalAccessTokenService $personalAccessTokenService
     )
     {
         $this->middleware('guest');
@@ -95,44 +99,37 @@ class RegisterController extends Controller
         
         $this->userSettingService->generateDefault($user, $country, $language);
         $this->userSubscriptionService->generateDefault($user);
+        $this->personalAccessTokenService->generateToken($user);
+        // $user->createToken('auth-token', ['*'], now()->addDays(Config::USER_TOKEN_EXPIRATION_DAYS));
        
-        $user->createToken('auth-tokenn');
-
         // Get or create a role named 'user' (you can adjust the role name based on your needs)
         // $role = app(Role::class)->findOrCreate(RolesEnum::USER->value, 'web');
         // $user->assignRole(RolesEnum::PREMIUM);
 
         return $user;
-
-        // return response()->json([
-        //     // 'token' => $token,
-        //     'name' => $user->name,
-        //     'email' => $user->email,
-        // ]);
-    
     }
 
     public function login(Request $request)
     {
-        // Your login logic
         $authenticated = Auth::attempt($request->only('email', 'password'));
         
         if ($authenticated) {
-            // User is authenticated
             $user = Auth::user();
-            $user->createToken('auth-tokenn');
+            // regenerate token 
+            $this->personalAccessTokenService->generateToken($user);
+
             $message = 'Login successful';
             return response()->json([
             'message' => $message,
                 'token' => $user->tokens->first()->token,
+                'expires_at' => $user->tokens->first()->expires_at,
                 'name' => $user->name
             ],200);
         } else {
-            // User is not authenticated
             $message = 'Login failed';
             return response()->json([
                 'message' => $message,
-            ],401);
+            ],400);
         }
     }
 
@@ -150,4 +147,14 @@ class RegisterController extends Controller
     // {
     //     return response()->json(['message' => 'Authentication successful']);
     // }
+
+    public function checkToken(Request $request)
+    {
+        $token = PersonalAccessToken::where('token', $request->header('x-api-key'))->first();
+
+        if ($token && $this->personalAccessTokenService->checkToken($token)) {
+            return response()->json(['message' => 'Token is valid'], 200);
+        }
+        return response()->json(['message' => 'Token is not valid'], 401);
+    }
 }

@@ -15,7 +15,7 @@ use App\Traits\CommandExceptionHandler;
 class CommandWithExceptionTrait extends Command
 {
     use CommandExceptionHandler;
-    protected $signature = 'news:a';
+    protected $signature = 'extendscommand';
     protected $description = 'extends';
 
     public function __construct(
