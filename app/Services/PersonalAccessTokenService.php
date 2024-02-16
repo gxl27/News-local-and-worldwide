@@ -35,12 +35,4 @@ class PersonalAccessTokenService
         return $expirationDate->isAfter(Carbon::today());
     }
 
-    public function refreshToken(PersonalAccessToken $token)
-    {
-        $token->update([
-            'token' =>
-            'expires_at' => Carbon::now()->addDays(Config::USER_TOKEN_EXPIRATION_DAYS)
-        ]);
-    }
-    
 }

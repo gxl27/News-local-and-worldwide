@@ -16,4 +16,5 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['secret.key'])->group(function () {
     Auth::routes();
     Route::post('/login', 'Auth\RegisterController@login')->name('login');
+    Route::post('/check-token', 'Auth\RegisterController@checkToken')->name('check-token');
 });
