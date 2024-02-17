@@ -117,8 +117,8 @@ class RegisterController extends Controller
             $user = Auth::user();
             // regenerate token 
             $this->personalAccessTokenService->generateToken($user);
-
             $message = 'Login successful';
+            
             return response()->json([
             'message' => $message,
                 'token' => $user->tokens->first()->token,

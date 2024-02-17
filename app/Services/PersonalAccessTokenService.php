@@ -10,20 +10,19 @@ use App\Models\PersonalAccessToken;
 
 class PersonalAccessTokenService
 {
-    public function __constructor(
+    public function __construct(
         protected PersonalAccessToken $token
     )
     {}
 
-    public function generateToken(User $user) :PersonalAccessToken
+    public function generateToken(User $user) :void
     {
         $oldToken = $user->tokens->first();
         if ($oldToken) {
             $oldToken->delete();
         }
         $token = $user->createToken('auth-token', ['*'], now()->addDays(Config::USER_TOKEN_EXPIRATION_DAYS));
-        
-        return $token->save();
+
     }
 
 
