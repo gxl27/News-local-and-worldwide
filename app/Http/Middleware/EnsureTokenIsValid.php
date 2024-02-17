@@ -23,9 +23,9 @@ class EnsureTokenIsValid
 
             return $next($request);
         }
-        // if user is not auth, check of x-api-key token
-        if ($request->header('x-api-key')) {
-            $token = PersonalAccessToken::where('token', $request->header('x-api-key'))->first();
+        // if user is not auth, check of X-Api-Key token
+        if ($request->header('X-Api-Key')) {
+            $token = PersonalAccessToken::where('token', $request->header('X-Api-Key'))->first();
             if ($token) {
 
                 return $next($request);

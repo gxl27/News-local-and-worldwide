@@ -50,7 +50,7 @@ class NewsController extends Controller
     {   
         $this->passed($user);
         // some policy here
-        // $this->authorize('passed', $user, $this->header('x-api-token')));
+        // $this->authorize('passed', $user, $this->header('X-Api-Key')));
         $channelLinks = $user->userSetting->channel_links;
 
         // go in service and repository and check the cached channels,

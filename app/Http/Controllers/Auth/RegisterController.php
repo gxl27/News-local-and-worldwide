@@ -65,13 +65,6 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     { 
-        $secret_key = env('SECRET_KEY');
-        if ($data['secret_key'] != $secret_key) {
-            return response()->json([
-                'message' => 'Secret key is not valid'
-            ], 401);
-        }
-        
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
@@ -150,7 +143,7 @@ class RegisterController extends Controller
 
     public function checkToken(Request $request)
     {
-        $token = PersonalAccessToken::where('token', $request->header('x-api-key'))->first();
+        $token = PersonalAccessToken::where('token', $request->header('X-Api-Key'))->first();
 
         if ($token && $this->personalAccessTokenService->checkToken($token)) {
             return response()->json(['message' => 'Token is valid'], 200);

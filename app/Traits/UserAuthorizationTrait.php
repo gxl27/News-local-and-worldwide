@@ -45,7 +45,7 @@ trait UserAuthorizationTrait
 
     private function getUserFromHeader()
     {
-        $apiToken = request()->header('x-api-key') ?? request()->header('x-api-key-admin');
+        $apiToken = request()->header('X-Api-Key') ?? request()->header('X-Api-Key-Admin');
         
         if (!$apiToken) {
             return false;

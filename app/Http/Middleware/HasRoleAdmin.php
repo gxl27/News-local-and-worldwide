@@ -20,8 +20,8 @@ class HasRoleAdmin
     public function handle(Request $request, Closure $next): Response
     {
         
-        if ($request->header('x-api-key-admin')) {
-            $token = PersonalAccessToken::where('token', $request->header('x-api-key-admin'))->first();
+        if ($request->header('X-Api-Key-Admin')) {
+            $token = PersonalAccessToken::where('token', $request->header('X-Api-Key-Admin'))->first();
             if ($token && $token->tokenable->hasRole('admin')) {
                 
                 return $next($request);

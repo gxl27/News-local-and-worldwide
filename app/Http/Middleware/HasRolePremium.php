@@ -19,9 +19,9 @@ class HasRolePremium
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // if user is not auth, check of x-api-key token
-        if ($request->header('x-api-key')) {
-            $token = PersonalAccessToken::where('token', $request->header('x-api-key'))->first();
+        // if user is not auth, check of X-Api-Key token
+        if ($request->header('X-Api-Key')) {
+            $token = PersonalAccessToken::where('token', $request->header('X-Api-Key'))->first();
             
             if (($token && $token->tokenable->hasRole('premium')) || ($token && $token->tokenable->hasRole('vip'))) {
                 return $next($request);
@@ -29,8 +29,8 @@ class HasRolePremium
         }
 
         // allow for admin api-key also
-        if ($request->header('x-api-key-admin')) {
-            $token = PersonalAccessToken::where('token', $request->header('x-api-key-admin'))->first();
+        if ($request->header('X-Api-Key-Admin')) {
+            $token = PersonalAccessToken::where('token', $request->header('X-Api-Key-Admin'))->first();
             if ($token && $token->tokenable->hasRole('admin')) {
                
                 return $next($request);
