@@ -15,7 +15,7 @@ class LanguageController extends Controller
 
     public function index()
     {
-        $this->languageService->getAll();
+        return response()->json($this->languageService->getAll());
     }
 
 }
