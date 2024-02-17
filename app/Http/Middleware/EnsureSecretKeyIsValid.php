@@ -20,11 +20,12 @@ class EnsureSecretKeyIsValid
     public function handle(Request $request, Closure $next): Response
     {
         // if user is not auth, check of x-api-key token
+        dd(env('SECRET_KEY'), $request->header('secret-key'), $request->header('secret-key') === env('SECRET_KEY'));
         if ($request->header('secret-key') === env('SECRET_KEY')) {
             return $next($request);
         }
 
-        return response()->json(['message' => 'Not Allowed'], 403);
+        return response()->json(['message' => 'Not Secret key'], 403);
 
     }
 }
