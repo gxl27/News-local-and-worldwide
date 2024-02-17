@@ -15,7 +15,7 @@ class CountryController extends Controller
 
     public function index()
     {
-        $this->countryService->getAll();
+        return response()->json($this->countryService->getAll());
     }
     
 
