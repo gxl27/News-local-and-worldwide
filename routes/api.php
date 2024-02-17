@@ -12,7 +12,12 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+Route::middleware(['secret.key'])->group(function () {
 
+// for public
+Route::get('/countries', 'CountryController@index')->name('countries.index');
+Route::get('/languages', 'LanguageController@index')->name('languages.index');
+    
 Route::prefix('user')->middleware(['token.active'])->group(function () {
     Route::get('/channels', 'User\ChannelController@index')->name('user.channels.index');
     Route::get('/channels/{id}/{languagesString}', 'User\ChannelController@show')->name('user.channels.show');
@@ -55,7 +60,5 @@ Route::prefix('admin')->middleware(['role.admin'])->group(function () {
     Route::get('/show/{id}/{languagesString}', 'HomeController@show')->name('show');
 
     Route::get('/batch', 'Admin\BatchController@index')->name('admin.batch.index');
-    
-
 });
-
+});
