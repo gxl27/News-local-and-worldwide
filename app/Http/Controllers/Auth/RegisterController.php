@@ -102,7 +102,7 @@ class RegisterController extends Controller
     }
 
     public function login(Request $request)
-    {dd('here');
+    {
         $authenticated = Auth::attempt($request->only('email', 'password'));
         
         if ($authenticated) {
@@ -127,11 +127,10 @@ class RegisterController extends Controller
 
     protected function registered(Request $request, $user)
     {
-        dd('here2');
         $message = 'Registration successful';
         return response()->json([
             'message' => $message,
-            'token' => $user->tokens->first()->token,
+            'token' => $user->tokens->first(),
             'name' => $user->name
         ],200);
     }
