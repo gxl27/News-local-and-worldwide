@@ -128,10 +128,13 @@ class RegisterController extends Controller
     protected function registered(Request $request, $user)
     {
         $user = User::find($user->id);
-        
+
         return response()->json([
             'message' => 'Registration successful',
-            'token' => $user->tokens->first(),
+            'token' => [
+                'name' => $user->tokens->first()->plainTextToken,
+                'expires_at' => $user->tokens->first()->expires_at
+            ],
             'name' => $user->name
         ],200);
     }
