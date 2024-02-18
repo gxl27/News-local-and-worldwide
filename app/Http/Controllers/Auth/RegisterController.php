@@ -132,7 +132,7 @@ class RegisterController extends Controller
         return response()->json([
             'message' => 'Registration successful',
             'token' => [
-                'name' => $user->tokens->first()->plainTextToken,
+                'name' => $user->tokens->first()->name,
                 'expires_at' => $user->tokens->first()->expires_at
             ],
             'name' => $user->name
