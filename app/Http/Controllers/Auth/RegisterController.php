@@ -94,16 +94,15 @@ class RegisterController extends Controller
         $this->userSubscriptionService->generateDefault($user);
         $this->personalAccessTokenService->generateToken($user);
         // $user->createToken('auth-token', ['*'], now()->addDays(Config::USER_TOKEN_EXPIRATION_DAYS));
-       
         // Get or create a role named 'user' (you can adjust the role name based on your needs)
         // $role = app(Role::class)->findOrCreate(RolesEnum::USER->value, 'web');
         // $user->assignRole(RolesEnum::PREMIUM);
-        dd($user);
+
         return $user;
     }
 
     public function login(Request $request)
-    {
+    {dd('here');
         $authenticated = Auth::attempt($request->only('email', 'password'));
         
         if ($authenticated) {
@@ -128,6 +127,7 @@ class RegisterController extends Controller
 
     protected function registered(Request $request, $user)
     {
+        dd('here2');
         $message = 'Registration successful';
         return response()->json([
             'message' => $message,
