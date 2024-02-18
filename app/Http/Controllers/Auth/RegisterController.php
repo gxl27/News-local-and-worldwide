@@ -126,8 +126,9 @@ class RegisterController extends Controller
     }
 
     protected function registered(Request $request, $user)
-    {dd($user);
-        $user = User::find($user->id);
+    {
+    $user = User::find($user->id);
+    dd($user);
         $message = 'Registration successful';
         return response()->json([
             'message' => $message,
