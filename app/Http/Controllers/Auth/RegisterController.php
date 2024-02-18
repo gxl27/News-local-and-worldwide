@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Country;
 use App\Enums\RolesEnum;
@@ -109,12 +110,18 @@ class RegisterController extends Controller
             $user = Auth::user();
             // regenerate token 
             $this->personalAccessTokenService->generateToken($user);
+            $accessToken = PersonalAccessToken::where('tokenable_id', $user->id)
+                                ->where('tokenable_type', User::class)
+                                ->first();
+            $expiresAt = Carbon::parse($accessToken->expires_at)->format('Y-m-d');
             $message = 'Login successful';
             
             return response()->json([
-            'message' => $message,
-                'token' => $user->tokens->first()->token,
-                'expires_at' => $user->tokens->first()->expires_at,
+                'message' => 'Registration successful',
+                'token' => [
+                    'key' => $accessToken->token, // Retrieve the token key
+                    'expires_at' => $expiresAt
+                ],
                 'name' => $user->name
             ],200);
         } else {
@@ -130,13 +137,12 @@ class RegisterController extends Controller
         $accessToken = PersonalAccessToken::where('tokenable_id', $user->id)
                                       ->where('tokenable_type', User::class)
                                       ->first();
-
+        $expiresAt = Carbon::parse($accessToken->expires_at)->format('Y-m-d');
         return response()->json([
             'message' => 'Registration successful',
             'token' => [
                 'key' => $accessToken->token, // Retrieve the token key
-                'name' => $accessToken->name,
-                'expires_at' => $accessToken->expires_at
+                'expires_at' => $expiresAt
             ],
             'name' => $user->name
         ],200);
