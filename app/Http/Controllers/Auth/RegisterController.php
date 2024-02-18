@@ -98,7 +98,7 @@ class RegisterController extends Controller
         // Get or create a role named 'user' (you can adjust the role name based on your needs)
         // $role = app(Role::class)->findOrCreate(RolesEnum::USER->value, 'web');
         // $user->assignRole(RolesEnum::PREMIUM);
-
+        dd($user);
         return $user;
     }
 
