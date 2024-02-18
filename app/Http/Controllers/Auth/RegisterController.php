@@ -114,10 +114,9 @@ class RegisterController extends Controller
                                 ->where('tokenable_type', User::class)
                                 ->first();
             $expiresAt = Carbon::parse($accessToken->expires_at)->format('Y-m-d');
-            $message = 'Login successful';
             
             return response()->json([
-                'message' => 'Registration successful',
+                'message' => 'Login successful',
                 'token' => [
                     'key' => $accessToken->token, // Retrieve the token key
                     'expires_at' => $expiresAt
@@ -158,8 +157,18 @@ class RegisterController extends Controller
         $token = PersonalAccessToken::where('token', $request->header('X-Api-Key'))->first();
 
         if ($token && $this->personalAccessTokenService->checkToken($token)) {
-            return response()->json(['message' => 'Token is valid'], 200);
+            
+            return response()->json(
+                [
+                    'message' => 'Token is valid',
+                    'valid' => true
+                ], 200);
         }
-        return response()->json(['message' => 'Token is not valid'], 401);
+
+        return response()->json(
+            [
+                'message' => 'Token is not valid',
+                'valid' => false
+            ], 401);
     }
 }
