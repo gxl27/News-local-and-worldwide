@@ -152,10 +152,11 @@ class RegisterController extends Controller
     //     return response()->json(['message' => 'Authentication successful']);
     // }
 
-    public function checkToken(Request $request)
-    {
-        $token = PersonalAccessToken::where('token', $request->header('X-Api-Key'))->first();
-
+    public function checkToken()
+    { dd(request('token'));
+        // get token from the request post
+        $token = request('token') ? PersonalAccessToken::where('token', request('token'))->first() : null;
+       
         if ($token && $this->personalAccessTokenService->checkToken($token)) {
             
             return response()->json(
