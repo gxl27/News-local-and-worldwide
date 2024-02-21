@@ -153,7 +153,7 @@ class RegisterController extends Controller
     // }
 
     public function checkToken()
-    { dd(request('token'));
+    { 
         // get token from the request post
         $token = request('token') ? PersonalAccessToken::where('token', request('token'))->first() : null;
        
@@ -170,6 +170,6 @@ class RegisterController extends Controller
             [
                 'message' => 'Token is not valid',
                 'valid' => false
-            ], 401);
+            ], 400);
     }
 }
