@@ -6,13 +6,16 @@ use Carbon\Carbon;
 use App\Models\News;
 use App\Models\Channel;
 use App\Models\Language;
+use Illuminate\Bus\Batch;
 use App\Jobs\SearchNewsJob;
 use App\Models\ChannelLink;
+use Illuminate\Support\Str;
 use App\Services\NewsService;
 use App\Exceptions\ApiException;
 use App\Services\ChannelService;
 use App\Services\LanguageService;
 use App\Services\NormalizerService;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
 use App\Events\ChannelLinkNewsSaved;
 use App\Repositories\NewsRepository;
@@ -21,8 +24,6 @@ use Illuminate\Support\Facades\Http;
 use App\Exceptions\InternalException;
 use Illuminate\Support\Facades\Redis;
 use App\Exceptions\NormalizerException;
-use Illuminate\Bus\Batch;
-use Illuminate\Support\Facades\Bus;
 
 class RssNewsSeekerService
 {
@@ -133,7 +134,7 @@ class RssNewsSeekerService
                     (new \DateTime())->format('D, d M Y H:i:s O');
                 
                 $news = new News([
-                    'title'       => $item['title'],
+                    'title'       => Str::limit($item['title'], 255),
                     'link'        => $item['link'],
                     'description' => $item['description'],
                     'publish_at'     => $publishAt,
@@ -165,7 +166,7 @@ class RssNewsSeekerService
                     if(${"transArray" . $language['name']} && class_exists($className) && (${"transArray" . $language['name']}[0]) && (${"transArray" . $language['name']}[0])) {
                         
                         $className::create([
-                            'title'       => ${"transArray" . $language['name']}[0],
+                            'title'       => Str::limit(${"transArray" . $language['name']}[0], 255),
                             'description' => ${"transArray" . $language['name']}[1],
                             'news_id' => $news->id
                         ]);
