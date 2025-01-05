@@ -22,6 +22,5 @@ class ChannelLinkNewsSavedListener implements ShouldQueue
     public function handle(ChannelLinkNewsSaved $event)
     {
         $news = $this->newsRepository->getAllByChannelLink($event->channelLink);
-        Log::info('--- newsIds: ' . json_encode($news));
     }
 }
